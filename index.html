@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ElectionGuide AI - Smart Election Assistant</title>
+    <meta name="description" content="A smart, interactive assistant to help you navigate the election process, find polling stations, and stay on top of important dates.">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://generativelanguage.googleapis.com; frame-src https://www.google.com https://maps.google.com;">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <a href="#main-content" class="sr-only focusable-skip-link">Skip to main content</a>
+
+        <!-- Header -->
+        <header class="app-header" role="banner">
+            <div class="logo">
+                <span class="material-icons-round" aria-hidden="true">how_to_vote</span>
+                <h1>ElectionGuide AI</h1>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main" id="main-content" role="main" tabindex="-1">
+
+            <!-- Persona Selection Screen -->
+            <section id="personaScreen" class="screen active fade-in">
+                <div class="hero-text">
+                    <h2>Welcome to your Smart Election Assistant</h2>
+                    <p>Let's personalize your experience. Tell us a bit about yourself:</p>
+                </div>
+
+                <div class="cards-container">
+                    <button class="persona-card" data-persona="first-time"
+                            aria-label="Select First-Time Voter profile"
+                            title="Select this profile if you are voting for the first time">
+                        <span class="material-icons-round persona-icon" aria-hidden="true">school</span>
+                        <h3>First-Time Voter</h3>
+                        <p>Learn how to register and cast your first vote securely.</p>
+                    </button>
+
+                    <button class="persona-card" data-persona="regular"
+                            aria-label="Select Regular Voter profile"
+                            title="Select this profile if you have voted before">
+                        <span class="material-icons-round persona-icon" aria-hidden="true">how_to_reg</span>
+                        <h3>Regular Voter</h3>
+                        <p>Find your polling station and review the current voting process.</p>
+                    </button>
+
+                    <button class="persona-card" data-persona="candidate"
+                            aria-label="Select Candidate profile"
+                            title="Select this profile if you are standing as a candidate">
+                        <span class="material-icons-round persona-icon" aria-hidden="true">campaign</span>
+                        <h3>Candidate</h3>
+                        <p>Understand the nomination and campaigning guidelines.</p>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Guide Flow Screen -->
+            <section id="flowScreen" class="screen" aria-labelledby="flowTitle">
+                <div class="flow-header">
+                    <button id="backToHomeBtn" class="text-button"
+                            aria-label="Change Profile"
+                            title="Go back and select a different profile">
+                        <span class="material-icons-round" aria-hidden="true">arrow_back</span>
+                        Change Profile
+                    </button>
+                    <h2 id="flowTitle">Your Guide</h2>
+                </div>
+
+                <div class="grid-layout">
+                    <!-- Left Column: Steps -->
+                    <div class="steps-column">
+                        <div id="stepsContainer" class="steps-container">
+                            <!-- Steps dynamically injected here -->
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Tools -->
+                    <div class="tools-column">
+                        <!-- Polling Station Finder -->
+                        <div class="tool-card map-card" id="mapSection" aria-labelledby="mapSectionTitle">
+                            <div class="tool-header">
+                                <span class="material-icons-round text-primary" aria-hidden="true">location_on</span>
+                                <h3 id="mapSectionTitle">Find Polling Station</h3>
+                            </div>
+                            <p class="tool-desc">Locate your nearest polling station based on your current location.</p>
+                            <button id="findLocationBtn"
+                                    class="secondary-button w-full"
+                                    aria-label="Find your nearest polling station using GPS location"
+                                    title="Click to detect your GPS location and show nearby polling stations on a map">
+                                <span class="material-icons-round" aria-hidden="true">my_location</span>
+                                Use My Location
+                            </button>
+                            <div id="mapContainer" class="map-container hidden"></div>
+                            <div id="mapFallback" class="map-fallback hidden"></div>
+                            <a id="openMapsLink" href="#" target="_blank" rel="noopener noreferrer"
+                               class="text-button hidden mt-1"
+                               aria-label="Open polling station search in Google Maps"
+                               title="Open Google Maps in a new tab to search for polling stations">
+                                Open in Google Maps
+                                <span class="material-icons-round icon-xs" aria-hidden="true">open_in_new</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Accessibility Announcer -->
+    <div id="a11y-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Global Gemini AI Assistant -->
+    <div class="global-ai-container" role="region" aria-label="AI Election Assistant">
+
+        <div id="aiChatWindow" class="chat-window global-chat-window">
+            <!-- Messages appear here -->
+        </div>
+
+        <div class="chat-input-area global-input-area">
+            <label for="aiQuestionInput" class="sr-only">Ask the election assistant a question</label>
+            <input type="text" id="aiQuestionInput"
+                   placeholder="Ask anything about elections…"
+                   autocomplete="off"
+                   spellcheck="false">
+            <button id="askAiBtn"
+                    class="primary-button icon-only send-btn"
+                    aria-label="Send question to election assistant"
+                    title="Send your question to the AI assistant">
+                <span class="material-icons-round" aria-hidden="true">arrow_upward</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Scripts (order matters — each file depends on those above it) -->
+    <script src="config/config.js"></script>
+    <script src="utils/formatting.js"></script>
+    <script src="utils/announcer.js"></script>
+    <script src="logic/appState.js"></script>
+    <script src="services/geminiService.js"></script>
+    <script src="services/mapsService.js"></script>
+    <script src="services/calendarService.js"></script>
+    <script src="logic/flows.js"></script>
+    <script src="ui/stepperUI.js"></script>
+    <script src="ui/chatUI.js"></script>
+    <script src="ui/mainUI.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

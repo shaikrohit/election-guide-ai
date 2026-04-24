@@ -4,4 +4,4 @@ scratch/
 tests/
 *.md
 Dockerfile
-nginx.conf
+.dockerignore

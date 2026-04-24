@@ -1,0 +1,7 @@
+.git
+.gitignore
+scratch/
+tests/
+*.md
+Dockerfile
+nginx.conf

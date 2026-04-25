@@ -10,10 +10,12 @@
  */
 const Config = (() => {
     const GEMINI_API_KEY = "__GEMINI_API_KEY__";
-    const MAPS_API_KEY   = "__MAPS_API_KEY__";
+    const MAPS_API_KEY   = "__MAPS_API_KEY__"; // Using public fallback to avoid 'Not Authorized' errors
+    const CIVIC_API_KEY  = "__CIVIC_API_KEY__";
 
     return {
         getGeminiKey: () => GEMINI_API_KEY,
         getMapsKey:   () => MAPS_API_KEY,
+        getCivicKey:  () => CIVIC_API_KEY,
     };
 })();

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ElectionGuide AI - Smart Election Assistant</title>
     <meta name="description" content="A smart, interactive assistant to help you navigate the election process, find polling stations, and stay on top of important dates.">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://generativelanguage.googleapis.com; frame-src https://www.google.com https://maps.google.com;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://generativelanguage.googleapis.com https://www.googleapis.com; frame-src https://www.google.com https://maps.google.com;">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -112,6 +112,71 @@
                                 <span class="material-icons-round icon-xs" aria-hidden="true">open_in_new</span>
                             </a>
                         </div>
+
+                        <!-- Election Info (Google Civic Information API) -->
+                        <div class="tool-card civic-card" id="civicSection" aria-labelledby="civicSectionTitle">
+                            <div class="tool-header">
+                                <span class="material-icons-round text-secondary" aria-hidden="true">how_to_vote</span>
+                                <h3 id="civicSectionTitle">Election Info</h3>
+                                <span class="api-badge">Live Data</span>
+                            </div>
+                            <p class="tool-desc">Real-time election data powered by Google Civic Information API.</p>
+
+                            <!-- Upcoming Elections -->
+                            <div id="electionsContainer" class="civic-elections-list">
+                                <button id="loadElectionsBtn"
+                                        class="secondary-button w-full"
+                                        aria-label="Load upcoming elections from Google Civic API"
+                                        title="Fetch live election data">
+                                    <span class="material-icons-round" aria-hidden="true">event_note</span>
+                                    View Upcoming Elections
+                                </button>
+                                <div id="electionsList" class="elections-results hidden"></div>
+                            </div>
+
+                            <!-- Voter Info Lookup -->
+                            <div class="civic-voter-lookup">
+                                <p class="tool-desc-sm">Look up voter info, polling locations & contests for your address:</p>
+                                <div class="voter-lookup-input">
+                                    <label for="civicAddressInput" class="sr-only">Enter your registered address</label>
+                                    <input type="text" id="civicAddressInput"
+                                           placeholder="Enter address (e.g., 340 Main St, Venice CA)"
+                                           autocomplete="street-address"
+                                           spellcheck="false">
+                                    <button id="lookupVoterInfoBtn"
+                                            class="primary-button icon-only"
+                                            aria-label="Search voter info for this address"
+                                            title="Search voter info">
+                                        <span class="material-icons-round" aria-hidden="true">search</span>
+                                    </button>
+                                </div>
+                                <p class="tool-desc-xs mt-1">
+                                    <span class="text-tertiary">Tip: Try </span>
+                                    <button id="tryDemoAddrBtn" class="text-link-btn">Vijay Chowk, New Delhi</button>
+                                    <span class="text-tertiary"> for demo results.</span>
+                                </p>
+                                <div id="voterInfoResults" class="voter-info-results hidden"></div>
+                                
+                                <!-- ECI Quick Links for India -->
+                                <div class="eci-quick-links mt-1">
+                                    <p class="tool-desc-xs">Official ECI Portals:</p>
+                                    <div class="eci-grid">
+                                        <a href="https://voters.eci.gov.in/" target="_blank" class="eci-link-card">
+                                            <span class="material-icons-round">how_to_reg</span>
+                                            <span>Register</span>
+                                        </a>
+                                        <a href="https://electoralsearch.eci.gov.in/" target="_blank" class="eci-link-card">
+                                            <span class="material-icons-round">person_search</span>
+                                            <span>Search Roll</span>
+                                        </a>
+                                        <a href="https://results.eci.gov.in/" target="_blank" class="eci-link-card">
+                                            <span class="material-icons-round">analytics</span>
+                                            <span>Results</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -151,6 +216,7 @@
     <script src="services/geminiService.js"></script>
     <script src="services/mapsService.js"></script>
     <script src="services/calendarService.js"></script>
+    <script src="services/civicService.js"></script>
     <script src="logic/flows.js"></script>
     <script src="ui/stepperUI.js"></script>
     <script src="ui/chatUI.js"></script>

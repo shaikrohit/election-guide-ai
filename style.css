@@ -1199,22 +1199,27 @@ h1, h2, h3, h4 {
     align-items: center;
     gap: 0.5rem;
     padding: 1rem 0.5rem;
-    background-color: white;
+    background-color: var(--bg-surface);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     text-decoration: none;
-    transition: all var(--transition-fast);
+    transition: all var(--transition-normal);
     text-align: center;
+    color: var(--text-primary);
 }
 
 .eci-link-card:hover {
-    border-color: var(--secondary-color);
-    background-color: var(--secondary-light);
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-sm);
     transform: translateY(-2px);
 }
 
 .eci-link-card .material-icons-round {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    background-color: var(--primary-light);
+    padding: 0.4rem;
+    border-radius: 50%;
 }
 
 .eci-link-card span {

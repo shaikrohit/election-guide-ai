@@ -4,6 +4,11 @@
  * Handles the UI interactions for the AI Chat functionality.
  */
 class ChatUI {
+    /**
+     * @param {AppState} appState - Application state manager.
+     * @param {GeminiService} geminiService - AI chat service.
+     * @param {A11yAnnouncer} announcer - Accessibility announcer utility.
+     */
     constructor(appState, geminiService, announcer) {
         this.appState       = appState;
         this.geminiService  = geminiService;

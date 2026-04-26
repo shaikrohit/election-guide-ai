@@ -1,6 +1,12 @@
 // Service for handling Google Gemini API integration
 
+/**
+ * Google Gemini AI Service.
+ * Provides multi-turn conversational AI with automatic model failover,
+ * response caching, and rate limiting. Supports both Gemini and Gemma models.
+ */
 class GeminiService {
+    /** Initializes the service with model definitions, cache, and history. */
     constructor() {
         this.baseUrl = "https://generativelanguage.googleapis.com/v1beta/models";
 

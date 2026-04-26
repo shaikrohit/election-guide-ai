@@ -33,6 +33,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // Initial render
     stepperUI.render();
 
+    // 5. Initialize Interactive Election Timeline
+    const timelineUI = new TimelineUI('electionTimeline', firebaseService);
+
     // ─── Civic Information API: Event Wiring ──────────────────────────────────
 
     const loadElectionsBtn = document.getElementById('loadElectionsBtn');

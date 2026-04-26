@@ -4,6 +4,12 @@
  * Handles main UI navigation and initialization.
  */
 class MainUI {
+    /**
+     * @param {AppState} appState - Application state manager.
+     * @param {A11yAnnouncer} announcer - Accessibility announcer utility.
+     * @param {MapsService} mapsService - Google Maps integration service.
+     * @param {FirebaseService|null} firebaseService - Optional Firebase analytics service.
+     */
     constructor(appState, announcer, mapsService, firebaseService) {
         this.appState = appState;
         this.announcer = announcer;

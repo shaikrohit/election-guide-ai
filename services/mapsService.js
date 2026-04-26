@@ -1,7 +1,17 @@
 // Service for Google Maps Integration
 // Uses the Maps Embed API v1 (requires API key) for accurate search results.
 
+/**
+ * Google Maps Integration Service.
+ * Provides polling station location lookup using the Maps Embed API.
+ * Falls back gracefully to an external link when geolocation or API key is unavailable.
+ */
 class MapsService {
+    /**
+     * @param {string} containerId - ID of the map container element.
+     * @param {string} fallbackId  - ID of the fallback message element.
+     * @param {string} linkId      - ID of the external "Open in Maps" link element.
+     */
     constructor(containerId, fallbackId, linkId) {
         this.container = document.getElementById(containerId);
         this.fallback  = document.getElementById(fallbackId);

@@ -55,28 +55,39 @@ class MainUI {
     }
 
     handlePersonaSelect(persona, title) {
-        console.log(`MainUI: Selecting persona -> ${persona}`);
-        this.appState.setPersona(persona);
-        
-        // Force UI update
-        if (this.personaScreen) {
-            this.personaScreen.classList.remove('active');
-            this.personaScreen.style.display = 'none';
-        }
-        if (this.flowScreen) {
-            this.flowScreen.classList.add('active');
-            this.flowScreen.style.display = 'block';
-        }
-        
-        this.announcer.announce(`${title || 'Profile'} selected.`);
-        
-        const flowTitle = document.getElementById('flowTitle');
-        if (flowTitle) {
-            flowTitle.focus();
-        }
+        try {
+            console.log(`MainUI: Transitioning to persona -> ${persona}`);
+            this.appState.setPersona(persona);
+            
+            // Force UI update
+            if (this.personaScreen) {
+                this.personaScreen.classList.remove('active');
+                this.personaScreen.style.display = 'none';
+            }
+            if (this.flowScreen) {
+                this.flowScreen.classList.add('active');
+                this.flowScreen.style.display = 'block';
+            }
+            
+            this.announcer.announce(`${title || 'Profile'} selected.`);
+            
+            const flowTitle = document.getElementById('flowTitle');
+            if (flowTitle) {
+                flowTitle.focus();
+            }
 
-        if (this.firebaseService) {
-            this.firebaseService.logUserEvent('select_persona', { persona });
+            // Safe analytics call
+            if (this.firebaseService) {
+                try {
+                    this.firebaseService.logUserEvent('select_persona', { persona });
+                } catch (analyticsError) {
+                    console.warn("Analytics failed, but continuing:", analyticsError);
+                }
+            }
+        } catch (fatalError) {
+            console.error("Fatal error during persona selection:", fatalError);
+            // Fallback attempt to show the flow screen even if state management failed
+            if (this.flowScreen) this.flowScreen.style.display = 'block';
         }
     }
 

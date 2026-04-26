@@ -39,8 +39,8 @@ class TTSService {
             const data = await response.json();
             const audioBlob = this._base64ToBlob(data.audioContent, 'audio/mp3');
             const audioUrl = URL.createObjectURL(audioBlob);
-            const audio = new Audio(audioUrl);
-            await audio.play();
+            this.currentAudio = new Audio(audioUrl);
+            await this.currentAudio.play();
         } catch (error) {
             console.error('TTSService Error:', error);
         }
@@ -58,6 +58,17 @@ class TTSService {
             arr[i] = binStr.charCodeAt(i);
         }
         return new Blob([arr], { type });
+    }
+
+    /**
+     * Stops currently playing audio.
+     */
+    stop() {
+        if (this.currentAudio) {
+            this.currentAudio.pause();
+            this.currentAudio.currentTime = 0;
+            this.currentAudio = null;
+        }
     }
 }
 

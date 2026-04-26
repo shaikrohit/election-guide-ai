@@ -1,10 +1,6 @@
-// Service for Google Maps Integration
-// Uses the Maps Embed API v1 (requires API key) for accurate search results.
-
 /**
- * Google Maps Integration Service.
- * Provides polling station location lookup using the Maps Embed API.
- * Falls back gracefully to an external link when geolocation or API key is unavailable.
+ * Google Maps JavaScript API Integration Service.
+ * Provides interactive map rendering and geocoding.
  */
 class MapsService {
     /**
@@ -13,107 +9,152 @@ class MapsService {
      * @param {string} linkId      - ID of the external "Open in Maps" link element.
      */
     constructor(containerId, fallbackId, linkId) {
-        this.container = document.getElementById(containerId);
-        this.fallback  = document.getElementById(fallbackId);
-        this.link      = document.getElementById(linkId);
-
-        // Cache: prevent re-rendering the map on repeated clicks
-        this._mapRendered = false;
-        this._cachedLat   = null;
-        this._cachedLng   = null;
+        this.containerId = containerId;
+        this.container   = document.getElementById(containerId);
+        this.fallback    = document.getElementById(fallbackId);
+        this.link        = document.getElementById(linkId);
+        
+        this.map = null;
+        this.geocoder = null;
+        this.isLoaded = false;
     }
 
     /**
-     * Requests geolocation and renders the nearest polling station map.
-     * Skips re-render if map was already successfully shown.
+     * Loads the Google Maps JS API script dynamically.
+     */
+    async loadApi() {
+        if (this.isLoaded) return;
+
+        const apiKey = Config.getMapsKey();
+        if (!apiKey || apiKey.startsWith('__')) {
+            console.warn('MapsService: No API key, using basic embed.');
+            return;
+        }
+
+        return new Promise((resolve) => {
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,geometry&callback=initMap`;
+            script.async = true;
+            script.defer = true;
+            
+            window.initMap = () => {
+                this.isLoaded = true;
+                this.geocoder = new google.maps.Geocoder();
+                resolve();
+            };
+            
+            document.head.appendChild(script);
+        });
+    }
+
+    /**
+     * Finds polling stations near the user's location.
      */
     async findPollingStation() {
         if (!navigator.onLine) {
-            this.showFallback("No internet connection. Please check your network.");
+            this.showFallback("No internet connection.");
             return;
         }
 
-        // Return cached map if already rendered — no redundant iframe injection
-        if (this._mapRendered) {
-            this.fallback.classList.add('hidden');
-            this.container.classList.remove('hidden');
-            if (this.link) this.link.classList.remove('hidden');
-            return;
-        }
+        this.showFallback("📍 Locating you…");
 
         if (!navigator.geolocation) {
-            this.showFallback("Geolocation is not supported by your browser.");
-            this._showExternalLink(`https://www.google.com/maps/search/polling+station+near+me/`);
+            this.showFallback("Geolocation is not supported.");
             return;
         }
 
-        this.showFallback("📍 Locating you… please allow location access if prompted.");
-
         navigator.geolocation.getCurrentPosition(
-            (position) => {
-                this._cachedLat = position.coords.latitude;
-                this._cachedLng = position.coords.longitude;
-                this.renderMap(this._cachedLat, this._cachedLng);
+            async (position) => {
+                const coords = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                await this.renderInteractiveMap(coords);
             },
             (error) => {
-                const msg = error.code === 1
-                    ? "Location permission was denied. Use the link below to search manually."
-                    : "Unable to retrieve your location. Use the link below to search manually.";
-                this.showFallback(msg);
-                this._showExternalLink(`https://www.google.com/maps/search/polling+station+near+me/`);
-            },
-            { timeout: 10000, enableHighAccuracy: true }
+                this.showFallback("Permission denied or location unavailable.");
+            }
         );
     }
 
     /**
-     * Injects a Google Maps embed iframe using the Maps Embed API v1.
-     * Provides accurate, official polling station search results.
-     * @param {number} lat
-     * @param {number} lng
+     * Renders a fully interactive map using Google Maps JS API.
+     * @param {Object} center - {lat, lng} coordinates.
      */
-    renderMap(lat, lng) {
-        const apiKey = Config.getMapsKey();
+    async renderInteractiveMap(center) {
+        await this.loadApi();
 
-        // Always show the "Open in Google Maps" deep-link button
-        const deepLink = `https://www.google.com/maps/search/polling+station+near+me/@${lat},${lng},15z`;
-        this._showExternalLink(deepLink);
+        if (!this.isLoaded) {
+            // Fallback to legacy renderMap if JS API failed to load
+            this._renderLegacyMap(center.lat, center.lng);
+            return;
+        }
 
-        // Maps Embed API v1 — accurate search with key; free public embed as fallback
-        const query    = encodeURIComponent(`polling station near ${lat},${lng}`);
-        const embedSrc = apiKey
-            ? `https://www.google.com/maps/embed/v1/search?key=${apiKey}&q=${query}&center=${lat},${lng}&zoom=14`
-            : `https://maps.google.com/maps?q=${query}&output=embed&z=14&hl=en`;
-
-        // Hide fallback text
         this.fallback.classList.add('hidden');
-
-        // Build iframe with full accessibility attributes and CSS class (no inline style)
+        this.container.classList.remove('hidden');
         this.container.innerHTML = '';
-        const iframe = document.createElement('iframe');
-        iframe.src                   = embedSrc;
-        iframe.width                 = '100%';
-        iframe.height                = '100%';
-        iframe.className             = 'map-iframe';
-        iframe.setAttribute('allowfullscreen', '');
-        iframe.setAttribute('loading', 'lazy');
-        iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
-        iframe.setAttribute('title',      'Polling stations near your location');
-        iframe.setAttribute('aria-label', 'Embedded map showing polling stations near your location');
 
-        // Graceful fallback if iframe fails to load
-        iframe.addEventListener('error', () => {
-            this.showFallback('Could not load the map. Please use the link below to open Google Maps.');
+        this.map = new google.maps.Map(this.container, {
+            center: center,
+            zoom: 14,
+            styles: this._getPremiumStyles(),
+            disableDefaultUI: false,
+            mapTypeControl: false
         });
 
-        this.container.appendChild(iframe);
-        this.container.classList.remove('hidden');
+        // Add User Marker
+        new google.maps.Marker({
+            position: center,
+            map: this.map,
+            title: "Your Location",
+            icon: {
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 10,
+                fillColor: "#4285F4",
+                fillOpacity: 1,
+                strokeWeight: 2,
+                strokeColor: "white"
+            }
+        });
 
-        // Mark as rendered so we never rebuild this on repeated clicks
-        this._mapRendered = true;
+        // Search for Polling Stations
+        const service = new google.maps.places.PlacesService(this.map);
+        service.nearbySearch({
+            location: center,
+            radius: 5000,
+            type: ['polling_station', 'government_office']
+        }, (results, status) => {
+            if (status === google.maps.places.PlacesServiceStatus.OK) {
+                results.forEach(place => {
+                    new google.maps.Marker({
+                        position: place.geometry.location,
+                        map: this.map,
+                        title: place.name,
+                        animation: google.maps.Animation.DROP
+                    });
+                });
+            }
+        });
+
+        this._showExternalLink(`https://www.google.com/maps/search/polling+station+near+me/@${center.lat},${center.lng},15z`);
     }
 
-    /** @private */
+    /** Legacy fallback */
+    _renderLegacyMap(lat, lng) {
+        const query = encodeURIComponent(`polling station near ${lat},${lng}`);
+        const embedSrc = `https://maps.google.com/maps?q=${query}&output=embed&z=14&hl=en`;
+        this.container.innerHTML = `<iframe width="100%" height="100%" class="map-iframe" src="${embedSrc}"></iframe>`;
+        this.container.classList.remove('hidden');
+    }
+
+    /** Private Styles */
+    _getPremiumStyles() {
+        return [
+            { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#e9e9e9" }, { "lightness": 17 }] },
+            { "featureType": "landscape", "elementType": "geometry", "stylers": [{ "color": "#f5f5f5" }, { "lightness": 20 }] }
+        ];
+    }
+
     _showExternalLink(href) {
         if (this.link) {
             this.link.href = href;
@@ -121,14 +162,13 @@ class MapsService {
         }
     }
 
-    /**
-     * Shows a text fallback message and hides the map container.
-     * @param {string} message
-     */
     showFallback(message) {
-        this._mapRendered = false;
         this.container.classList.add('hidden');
         this.fallback.classList.remove('hidden');
         this.fallback.textContent = message;
     }
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = MapsService;
 }

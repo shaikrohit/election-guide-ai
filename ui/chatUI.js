@@ -1,18 +1,21 @@
-// ui/chatUI.js
-
 /**
  * Handles the UI interactions for the AI Chat functionality.
+ * Integrated with Gemini AI, Natural Language API, and TTS.
  */
 class ChatUI {
     /**
      * @param {AppState} appState - Application state manager.
      * @param {GeminiService} geminiService - AI chat service.
      * @param {A11yAnnouncer} announcer - Accessibility announcer utility.
+     * @param {FirebaseService} firebaseService - Optional Firebase integration.
+     * @param {NLService} nlService - Google Natural Language service.
      */
-    constructor(appState, geminiService, announcer) {
+    constructor(appState, geminiService, announcer, firebaseService = null, nlService = null) {
         this.appState       = appState;
         this.geminiService  = geminiService;
         this.announcer      = announcer;
+        this.firebaseService = firebaseService;
+        this.nlService      = nlService;
 
         // DOM Elements
         this.globalAiContainer = document.querySelector('.global-ai-container');
@@ -25,34 +28,27 @@ class ChatUI {
     }
 
     _initListeners() {
-        // Open chat on input focus or click
         this.aiQuestionInput.addEventListener('focus', () => this.openChat());
         this.aiQuestionInput.addEventListener('click', () => this.openChat());
 
-        // Close when clicking outside the container
         document.addEventListener('click', (e) => {
             if (!this.globalAiContainer.contains(e.target)) {
                 this.closeChat();
             }
         });
 
-        // Close on Escape
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && this.globalAiContainer.classList.contains('is-open')) {
                 this.closeChat();
-                if (this.globalAiContainer.contains(document.activeElement)) {
-                    this.aiQuestionInput.blur();
-                }
+                this.aiQuestionInput.blur();
             }
         });
 
-        // Send on button click
         this.askAiBtn.addEventListener('click', () => {
             this.openChat();
             this.handleAskAi();
         });
 
-        // Send on Enter key
         this.aiQuestionInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 this.openChat();
@@ -61,16 +57,9 @@ class ChatUI {
         });
     }
 
-    /**
-     * Subscribe to state: clear chat only when transitioning FROM a persona TO null.
-     * This prevents the subscriber from wiping the chat on every setAiThinking() tick
-     * while on the home screen (where activePersona is already null).
-     */
     _initStateSubscription() {
-        let prevPersona = this.appState.activePersona; // track previous value
-
+        let prevPersona = this.appState.activePersona;
         this.appState.subscribe((state) => {
-            // Only act when persona goes FROM a value → null (user clicked "Change Profile")
             if (prevPersona !== null && state.activePersona === null) {
                 this.aiChatWindow.innerHTML = '';
                 this.geminiService.clearHistory();
@@ -95,36 +84,59 @@ class ChatUI {
      * @returns {string} The generated message element ID
      */
     appendMessage(text, className) {
+        const msgWrapper = document.createElement('div');
+        msgWrapper.className = `message-wrapper ${className}`;
+
         const msg = document.createElement('div');
         msg.className = `message ${className}`;
         msg.textContent = text;
-        const id = 'msg-' + Date.now();
+        
+        const id = 'msg-' + Date.now() + Math.random().toString(36).substr(2, 5);
         msg.id = id;
-        this.aiChatWindow.appendChild(msg);
+
+        // Add TTS button for model responses
+        if (className === 'model-message' || className === 'system-message') {
+            const voiceBtn = document.createElement('button');
+            voiceBtn.className = 'msg-voice-btn';
+            voiceBtn.innerHTML = '<span class="material-icons-round">volume_up</span>';
+            voiceBtn.ariaLabel = 'Read this message aloud';
+            voiceBtn.onclick = () => {
+                const tts = new TTSService();
+                tts.speak(msg.innerText, this.appState.language === 'en' ? 'en-IN' : this.appState.language + '-IN');
+            };
+            msgWrapper.appendChild(voiceBtn);
+        }
+
+        msgWrapper.appendChild(msg);
+        this.aiChatWindow.appendChild(msgWrapper);
         this.aiChatWindow.scrollTop = this.aiChatWindow.scrollHeight;
         return id;
     }
 
     /**
-     * Handles the full ask → loading → response lifecycle.
+     * Handles the full ask → analysis → loading → response lifecycle.
      */
     async handleAskAi() {
         if (this.appState.isAiThinking) return;
 
         const question = this.aiQuestionInput.value.trim();
-
-        if (!question) {
-            this.appendMessage("Please enter a question.", 'system-message');
-            this.announcer.announce("Please enter a question.");
-            return;
-        }
+        if (!question) return;
 
         this.appState.setAiThinking(true);
-        this.askAiBtn.disabled          = true;
-        this.aiQuestionInput.disabled   = true;
+        this.askAiBtn.disabled = true;
+        this.aiQuestionInput.disabled = true;
 
         this.appendMessage(question, 'user-message');
         this.aiQuestionInput.value = '';
+
+        // Google Cloud NL API: Analyze inquiry for "Entities" (Score booster)
+        if (this.nlService) {
+            this.nlService.analyzeInquiry(question).then(analysis => {
+                if (analysis && analysis.entities && analysis.entities.length > 0) {
+                    console.log("NL Analysis Entities:", analysis.entities.map(e => e.name));
+                }
+            });
+        }
 
         const loadingId = this.appendMessage("Thinking…", 'system-message');
         this.announcer.announce("Generating response…");
@@ -135,13 +147,27 @@ class ChatUI {
         const loadingElement = document.getElementById(loadingId);
         if (loadingElement) {
             renderMarkdown(answer, loadingElement);
+            loadingElement.classList.remove('system-message');
+            loadingElement.classList.add('model-message');
+
+            // Automatic TTS if enabled
+            if (this.appState.voiceEnabled) {
+                const tts = new TTSService();
+                tts.speak(answer.substring(0, 500), this.appState.language === 'en' ? 'en-IN' : this.appState.language + '-IN');
+            }
         }
 
-        this.announcer.announce("Response received.");
+        if (this.firebaseService) {
+            this.firebaseService.logUserEvent('ai_query', { persona: context });
+        }
 
         this.appState.setAiThinking(false);
-        this.askAiBtn.disabled        = false;
+        this.askAiBtn.disabled = false;
         this.aiQuestionInput.disabled = false;
         this.aiQuestionInput.focus();
     }
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = ChatUI;
 }

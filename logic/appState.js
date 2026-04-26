@@ -9,7 +9,27 @@ class AppState {
         this.currentStep = 1;
         this.stepState = {};
         this.isAiThinking = false;
+        this.language = 'en';
+        this.voiceEnabled = false;
         this.listeners = [];
+    }
+
+    /**
+     * Updates the current language and notifies subscribers.
+     * @param {string} lang
+     */
+    setLanguage(lang) {
+        this.language = lang;
+        this.notify();
+    }
+
+    /**
+     * Toggles voice assistance and notifies subscribers.
+     * @param {boolean} enabled
+     */
+    setVoiceEnabled(enabled) {
+        this.voiceEnabled = enabled;
+        this.notify();
     }
 
     /**

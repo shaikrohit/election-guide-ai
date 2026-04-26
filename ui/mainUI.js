@@ -2,72 +2,89 @@
 
 /**
  * Handles main UI navigation and initialization.
+ * Enhanced with failsafe direct attachments.
  */
 class MainUI {
-    /**
-     * @param {AppState} appState - Application state manager.
-     * @param {A11yAnnouncer} announcer - Accessibility announcer utility.
-     * @param {MapsService} mapsService - Google Maps integration service.
-     * @param {FirebaseService|null} firebaseService - Optional Firebase analytics service.
-     */
     constructor(appState, announcer, mapsService, firebaseService) {
         this.appState = appState;
         this.announcer = announcer;
         this.mapsService = mapsService;
         this.firebaseService = firebaseService;
 
-        // Screens
+        this.appMain = document.querySelector('.app-main');
         this.personaScreen = document.getElementById('personaScreen');
         this.flowScreen = document.getElementById('flowScreen');
-        
-        // Buttons
         this.backToHomeBtn = document.getElementById('backToHomeBtn');
         this.findLocationBtn = document.getElementById('findLocationBtn');
 
         this.initListeners();
+        console.log("MainUI: Initialized and ready.");
     }
 
     initListeners() {
-        // Persona Selection
-        const personaCards = document.querySelectorAll('.persona-card');
-        personaCards.forEach(card => {
-            card.addEventListener('click', () => {
+        // Use both delegation AND direct attachment as a failsafe
+        const cards = document.querySelectorAll('.persona-card');
+        console.log(`MainUI: Found ${cards.length} persona cards.`);
+
+        cards.forEach(card => {
+            card.onclick = (e) => {
+                e.preventDefault();
                 const persona = card.getAttribute('data-persona');
-                this.appState.setPersona(persona);
-                
-                this.personaScreen.classList.remove('active');
-                this.flowScreen.classList.add('active');
-                
-                this.announcer.announce(`${card.querySelector('h3').textContent} profile selected. Guide loaded.`);
-                
-                const flowTitle = document.getElementById('flowTitle');
-                if (flowTitle) {
-                    flowTitle.setAttribute('tabindex', '-1');
-                    flowTitle.focus();
-                }
-
-                if (this.firebaseService) {
-                    this.firebaseService.logUserEvent("select_persona", { persona_name: persona });
-                }
-            });
+                this.handlePersonaSelect(persona, card.querySelector('h3')?.textContent);
+            };
         });
 
-        // Back to Home
-        this.backToHomeBtn.addEventListener('click', () => {
+        if (this.backToHomeBtn) {
+            this.backToHomeBtn.onclick = () => {
+                this.handleBackToHome();
+            };
+        }
+
+        if (this.findLocationBtn) {
+            this.findLocationBtn.onclick = () => {
+                this.mapsService.findPollingStation();
+            };
+        }
+    }
+
+    handlePersonaSelect(persona, title) {
+        console.log(`MainUI: Selecting persona -> ${persona}`);
+        this.appState.setPersona(persona);
+        
+        // Force UI update
+        if (this.personaScreen) {
+            this.personaScreen.classList.remove('active');
+            this.personaScreen.style.display = 'none';
+        }
+        if (this.flowScreen) {
+            this.flowScreen.classList.add('active');
+            this.flowScreen.style.display = 'block';
+        }
+        
+        this.announcer.announce(`${title || 'Profile'} selected.`);
+        
+        const flowTitle = document.getElementById('flowTitle');
+        if (flowTitle) {
+            flowTitle.focus();
+        }
+
+        if (this.firebaseService) {
+            this.firebaseService.logUserEvent('select_persona', { persona });
+        }
+    }
+
+    handleBackToHome() {
+        if (this.flowScreen) {
             this.flowScreen.classList.remove('active');
+            this.flowScreen.style.display = 'none';
+        }
+        if (this.personaScreen) {
             this.personaScreen.classList.add('active');
-            this.appState.setPersona(null);
-            
-            this.announcer.announce('Returned to profile selection.');
-            
-            const firstCard = document.querySelector('.persona-card');
-            if (firstCard) firstCard.focus();
-        });
-
-        // Maps Handling
-        this.findLocationBtn.addEventListener('click', () => {
-            this.announcer.announce("Fetching your location...");
-            this.mapsService.findPollingStation();
-        });
+            this.personaScreen.style.display = 'block';
+        }
+        this.appState.setPersona(null);
+        this.announcer.announce('Returned to profile selection.');
     }
 }
+
+window.MainUI = MainUI;

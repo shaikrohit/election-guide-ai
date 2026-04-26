@@ -12,6 +12,10 @@ const Config = (() => {
     const GEMINI_API_KEY = "__GEMINI_API_KEY__";
     const MAPS_API_KEY   = "__MAPS_API_KEY__"; // Using public fallback to avoid 'Not Authorized' errors
     const CIVIC_API_KEY  = "__CIVIC_API_KEY__";
+    const TRANSLATE_API_KEY = "__TRANSLATE_API_KEY__";
+    const TTS_API_KEY       = "__TTS_API_KEY__";
+    const NL_API_KEY        = "__NL_API_KEY__";
+
     const FIREBASE_CONFIG = {
         apiKey: "__FIREBASE_API_KEY__",
         authDomain: "__FIREBASE_AUTH_DOMAIN__",
@@ -26,6 +30,9 @@ const Config = (() => {
         getGeminiKey: () => GEMINI_API_KEY,
         getMapsKey:   () => MAPS_API_KEY,
         getCivicKey:  () => CIVIC_API_KEY,
+        getTranslateKey: () => TRANSLATE_API_KEY,
+        getTTSKey:       () => TTS_API_KEY,
+        getNLKey:        () => NL_API_KEY,
         getFirebaseConfig: () => FIREBASE_CONFIG
     };
 })();

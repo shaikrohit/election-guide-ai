@@ -1,18 +1,17 @@
 <!DOCTYPE html>
+<!-- ElectionGuide AI - Final Polish v1.1.3 -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ElectionGuide AI - Smart Election Assistant</title>
     <meta name="description" content="A smart, interactive assistant to help you navigate the election process, find polling stations, and stay on top of important dates.">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://generativelanguage.googleapis.com https://www.googleapis.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://www.google-analytics.com https://firebase.googleapis.com; frame-src https://www.google.com https://maps.google.com;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://maps.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://generativelanguage.googleapis.com https://www.googleapis.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://www.google-analytics.com https://firebase.googleapis.com https://texttospeech.googleapis.com https://translation.googleapis.com https://maps.googleapis.com; frame-src https://www.google.com https://maps.google.com;">
 
-    <!-- Google Fonts -->
+    <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 
     <link rel="stylesheet" href="style.css">
@@ -22,12 +21,34 @@
         <a href="#main-content" class="sr-only focusable-skip-link">Skip to main content</a>
 
         <!-- Header -->
-        <header class="app-header" role="banner">
-            <div class="logo">
-                <span class="material-icons-round" aria-hidden="true">how_to_vote</span>
-                <h1>ElectionGuide AI</h1>
+        <header class="main-header glass-effect">
+        <div class="header-container">
+            <div class="logo-area">
+                <span class="material-icons-round logo-icon">how_to_reg</span>
+                <h1>ElectionGuide <span class="accent-text">AI</span></h1>
             </div>
-        </header>
+            
+            <div class="header-actions">
+                <!-- Multilingual Control -->
+                <div class="language-picker">
+                    <span class="material-icons-round">translate</span>
+                    <select id="languageSelect" aria-label="Select Language">
+                        <option value="en">English</option>
+                        <option value="hi">हिन्दी (Hindi)</option>
+                        <option value="te">తెలుగు (Telugu)</option>
+                        <option value="ta">தமிழ் (Tamil)</option>
+                        <option value="kn">ಕನ್ನಡ (Kannada)</option>
+                    </select>
+                </div>
+
+                <!-- Voice Access Control -->
+                <button id="masterTTSBtn" class="voice-btn" aria-label="Toggle Voice Assistance">
+                    <span class="material-icons-round">volume_up</span>
+                    <span class="voice-status">Voice Off</span>
+                </button>
+            </div>
+        </div>
+    </header>
 
         <!-- Main Content -->
         <main class="app-main" id="main-content" role="main" tabindex="-1">
@@ -67,7 +88,7 @@
 
                 <!-- Interactive Election Timeline -->
                 <section class="timeline-section" aria-labelledby="timelineTitle">
-                    <div id="electionTimeline" class="tool-card">
+                    <div id="timeline-container" class="tool-card">
                         <!-- Timeline rendered dynamically by timelineUI.js -->
                     </div>
                 </section>
@@ -216,20 +237,27 @@
     </div>
 
     <!-- Scripts (order matters — each file depends on those above it) -->
+    <!-- Services -->
     <script src="config/config.js"></script>
+    <script src="services/geminiService.js"></script>
+    <script src="services/mapsService.js"></script>
+    <script src="services/civicService.js"></script>
+    <script src="services/translationService.js"></script>
+    <script src="services/ttsService.js"></script>
+    <script src="services/nlService.js"></script>
+    <script src="services/firebaseService.bundle.js"></script>
+    
+    <!-- UI Components -->
     <script src="utils/formatting.js"></script>
     <script src="utils/announcer.js"></script>
     <script src="logic/appState.js"></script>
-    <script src="services/geminiService.js"></script>
-    <script src="services/mapsService.js"></script>
-    <script src="services/calendarService.js"></script>
-    <script src="services/civicService.js"></script>
-    <script src="services/firebaseService.bundle.js"></script>
     <script src="logic/flows.js"></script>
-    <script src="ui/stepperUI.js"></script>
     <script src="ui/chatUI.js"></script>
+    <script src="ui/stepperUI.js"></script>
     <script src="ui/mainUI.js"></script>
     <script src="ui/timelineUI.js"></script>
+    
+    <!-- Main Orchestrator -->
     <script src="app.js"></script>
 </body>
 </html>

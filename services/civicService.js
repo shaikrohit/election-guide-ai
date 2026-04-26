@@ -68,7 +68,6 @@ class CivicService {
             let url = `${this.baseUrl}/voterinfo?key=${apiKey}&address=${encodeURIComponent(cleanAddress)}`;
             if (electionId) url += `&electionId=${encodeURIComponent(electionId)}`;
             
-            console.log("Civic API lookup URL:", url.replace(apiKey, "REDACTED"));
             const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
 
             if (!response.ok) {

@@ -47,4 +47,32 @@ describe('AppState', () => {
         appState.toggleStepState('doc1');
         expect(appState.stepState['doc1']).toBe(false);
     });
+
+    it('should update step state with specific value', () => {
+        appState.setStepState('testKey', 'testValue');
+        expect(appState.stepState['testKey']).toBe('testValue');
+    });
+
+    it('should set AI thinking status', () => {
+        appState.setAiThinking(true);
+        expect(appState.isAiThinking).toBe(true);
+        appState.setAiThinking(false);
+        expect(appState.isAiThinking).toBe(false);
+    });
+
+    it('should update language and notify listeners', () => {
+        const listener = jest.fn();
+        appState.subscribe(listener);
+        appState.setLanguage('hi');
+        expect(appState.language).toBe('hi');
+        expect(listener).toHaveBeenCalledWith(appState);
+    });
+
+    it('should toggle voice enabled and notify listeners', () => {
+        const listener = jest.fn();
+        appState.subscribe(listener);
+        appState.setVoiceEnabled(true);
+        expect(appState.voiceEnabled).toBe(true);
+        expect(listener).toHaveBeenCalledWith(appState);
+    });
 });

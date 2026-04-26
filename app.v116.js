@@ -3,7 +3,6 @@
  * This module initializes all services and manages the global application lifecycle.
  */
 document.addEventListener("DOMContentLoaded", async () => {
-    console.log("ElectionGuide AI: Orchestrator Booting...");
     
     // 1. Initialize Core Utilities
     const announcer = new A11yAnnouncer('a11y-announcer');
@@ -37,7 +36,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const stepperUI = new StepperUI('stepsContainer', 'flowTitle', appState, Flows, firebaseService);
     const timelineUI = new TimelineUI('timeline-container', appState, firebaseService);
 
-    console.log("ElectionGuide AI: Services Ready.");
+
 
     // 5. Global UI Elements
     const languageSelect = document.getElementById('languageSelect');

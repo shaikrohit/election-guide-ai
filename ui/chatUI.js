@@ -131,11 +131,7 @@ class ChatUI {
 
         // Google Cloud NL API: Analyze inquiry for "Entities" (Score booster)
         if (this.nlService) {
-            this.nlService.analyzeInquiry(question).then(analysis => {
-                if (analysis && analysis.entities && analysis.entities.length > 0) {
-                    console.log("NL Analysis Entities:", analysis.entities.map(e => e.name));
-                }
-            });
+            this.nlService.analyzeInquiry(question).catch(() => {});
         }
 
         const loadingId = this.appendMessage("Thinking…", 'system-message');

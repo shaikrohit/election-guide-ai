@@ -111,8 +111,6 @@ class GeminiService {
                 const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
                 if (answer) {
-                    console.log(`✅ Response from model: ${model.name}`);
-
                     // Update conversation history (always store as user/model pair)
                     this.conversationHistory.push(newUserMessage);
                     this.conversationHistory.push({ role: "model", parts: [{ text: answer }] });

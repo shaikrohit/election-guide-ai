@@ -18,11 +18,9 @@ class MainUI {
         this.findLocationBtn = document.getElementById('findLocationBtn');
 
         this.initListeners();
-        console.log("MainUI: Initialized and ready.");
     }
 
     initListeners() {
-        console.log("MainUI: Binding delegated listeners...");
         
         const cardsContainer = document.querySelector('.cards-container');
         if (cardsContainer) {
@@ -32,7 +30,6 @@ class MainUI {
                     e.preventDefault();
                     const persona = card.getAttribute('data-persona');
                     const title = card.querySelector('h3')?.textContent;
-                    console.log(`MainUI: Card clicked -> ${persona}`);
                     this.handlePersonaSelect(persona, title);
                 }
             });
@@ -42,7 +39,6 @@ class MainUI {
 
         if (this.backToHomeBtn) {
             this.backToHomeBtn.addEventListener('click', () => {
-                console.log("MainUI: Back to home clicked.");
                 this.handleBackToHome();
             });
         }
@@ -56,7 +52,6 @@ class MainUI {
 
     handlePersonaSelect(persona, title) {
         try {
-            console.log(`MainUI: Transitioning to persona -> ${persona}`);
             this.appState.setPersona(persona);
             
             // Force UI update

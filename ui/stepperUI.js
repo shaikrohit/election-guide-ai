@@ -1,11 +1,12 @@
 // ui/stepperUI.js
 
 class StepperUI {
-    constructor(containerId, titleId, appState, flows) {
+    constructor(containerId, titleId, appState, flows, firebaseService) {
         this.container    = document.getElementById(containerId);
         this.titleElement = document.getElementById(titleId);
         this.appState     = appState;
         this.flows        = flows;
+        this.firebaseService = firebaseService;
 
         this.renderedPersona = null;
         this.stepElements    = [];
@@ -523,6 +524,9 @@ class StepperUI {
             const stepNum = parseInt(completeBtn.getAttribute('data-step'), 10);
             if (stepNum === this.appState.currentStep) {
                 this.appState.setStep(stepNum + 1);
+                if (this.firebaseService) {
+                    this.firebaseService.logUserEvent("step_completed", { step_number: stepNum, persona: this.appState.activePersona });
+                }
             }
             return;
         }

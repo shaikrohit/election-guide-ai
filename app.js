@@ -11,11 +11,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const geminiService = new GeminiService();
     const mapsService = new MapsService('mapContainer', 'mapFallback', 'openMapsLink');
     const civicService = new CivicService();
+    
+    // Initialize Firebase if configured
+    let firebaseService = null;
+    if (window.FirebaseService) {
+        firebaseService = new window.FirebaseService();
+        if (firebaseService.init()) {
+            // Wait a moment for auth to initialize before making the first auth call
+            setTimeout(() => {
+                 firebaseService.loginAnonymously();
+                 firebaseService.logUserEvent("app_loaded", { persona: null });
+            }, 500);
+        }
+    }
 
     // 4. Initialize UI Components
     const chatUI = new ChatUI(appState, geminiService, announcer);
-    const mainUI = new MainUI(appState, announcer, mapsService);
-    const stepperUI = new StepperUI('stepsContainer', 'flowTitle', appState, Flows);
+    const mainUI = new MainUI(appState, announcer, mapsService, firebaseService);
+    const stepperUI = new StepperUI('stepsContainer', 'flowTitle', appState, Flows, firebaseService);
 
     // Initial render
     stepperUI.render();

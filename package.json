@@ -1,0 +1,32 @@
+{
+  "dependencies": {
+    "firebase": "^12.12.1"
+  },
+  "devDependencies": {
+    "jest": "^30.3.0",
+    "jest-environment-jsdom": "^30.3.0",
+    "webpack": "^5.106.2",
+    "webpack-cli": "^7.0.2"
+  },
+  "name": "election-guide-ai",
+  "version": "1.0.0",
+  "description": "Smart AI-powered assistant that guides users through the election process with personalized steps, timelines, and polling station support.",
+  "main": "app.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shaikrohit/election-guide-ai.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shaikrohit/election-guide-ai/issues"
+  },
+  "homepage": "https://github.com/shaikrohit/election-guide-ai#readme"
+}

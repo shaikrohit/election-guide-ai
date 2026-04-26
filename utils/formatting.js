@@ -62,3 +62,7 @@ function renderMarkdown(text, container) {
         }
     });
 }
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { escapeHTML, renderMarkdown };
+}

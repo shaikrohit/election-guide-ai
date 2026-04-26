@@ -4,10 +4,11 @@
  * Handles main UI navigation and initialization.
  */
 class MainUI {
-    constructor(appState, announcer, mapsService) {
+    constructor(appState, announcer, mapsService, firebaseService) {
         this.appState = appState;
         this.announcer = announcer;
         this.mapsService = mapsService;
+        this.firebaseService = firebaseService;
 
         // Screens
         this.personaScreen = document.getElementById('personaScreen');
@@ -37,6 +38,10 @@ class MainUI {
                 if (flowTitle) {
                     flowTitle.setAttribute('tabindex', '-1');
                     flowTitle.focus();
+                }
+
+                if (this.firebaseService) {
+                    this.firebaseService.logUserEvent("select_persona", { persona_name: persona });
                 }
             });
         });

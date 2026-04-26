@@ -16,6 +16,7 @@ class ChatUI {
         this.announcer      = announcer;
         this.firebaseService = firebaseService;
         this.nlService      = nlService;
+        this.ttsService     = new TTSService();
 
         // DOM Elements
         this.globalAiContainer = document.querySelector('.global-ai-container');
@@ -101,8 +102,7 @@ class ChatUI {
             voiceBtn.innerHTML = '<span class="material-icons-round">volume_up</span>';
             voiceBtn.ariaLabel = 'Read this message aloud';
             voiceBtn.onclick = () => {
-                const tts = new TTSService();
-                tts.speak(msg.innerText, this.appState.language === 'en' ? 'en-IN' : this.appState.language + '-IN');
+                this.ttsService.speak(msg.innerText, this.appState.language === 'en' ? 'en-IN' : this.appState.language + '-IN');
             };
             msgWrapper.appendChild(voiceBtn);
         }
@@ -152,8 +152,7 @@ class ChatUI {
 
             // Automatic TTS if enabled
             if (this.appState.voiceEnabled) {
-                const tts = new TTSService();
-                tts.speak(answer.substring(0, 500), this.appState.language === 'en' ? 'en-IN' : this.appState.language + '-IN');
+                this.ttsService.speak(answer.substring(0, 500), this.appState.language === 'en' ? 'en-IN' : this.appState.language + '-IN');
             }
         }
 

@@ -72,12 +72,12 @@ function renderElectionInfo(elections, container) {
     container.innerHTML = elections.map(e => `
         <div class="card result-card">
             <div class="card-header">
-                <h4 data-translate>${e.name}</h4>
-                <button class="tts-btn" onclick="new TTSService().speak('${e.name}. Scheduled for ${e.electionDay}')" aria-label="Read Aloud">
+                <h4 data-translate>${escapeHTML(e.name)}</h4>
+                <button class="tts-btn" onclick="new TTSService().speak('${escapeHTML(e.name)}. Scheduled for ${escapeHTML(e.electionDay)}')" aria-label="Read Aloud">
                     <span class="material-icons-round">volume_up</span>
                 </button>
             </div>
-            <p><strong data-translate>Date:</strong> ${e.electionDay}</p>
+            <p><strong data-translate>Date:</strong> ${escapeHTML(e.electionDay)}</p>
         </div>
     `).join('');
 }
@@ -91,19 +91,19 @@ function renderPollingInfo(pollingStations, container) {
     container.innerHTML = pollingStations.map(ps => `
         <div class="card result-card">
             <div class="card-header">
-                <h4 data-translate>${ps.address.locationName || 'Polling Station'}</h4>
-                <button class="tts-btn" onclick="new TTSService().speak('${ps.address.locationName || 'Polling Station'} at ${ps.address.line1}')" aria-label="Read Aloud">
+                <h4 data-translate>${escapeHTML(ps.address.locationName || 'Polling Station')}</h4>
+                <button class="tts-btn" onclick="new TTSService().speak('${escapeHTML(ps.address.locationName || 'Polling Station')} at ${escapeHTML(ps.address.line1)}')" aria-label="Read Aloud">
                     <span class="material-icons-round">volume_up</span>
                 </button>
             </div>
-            <p>${ps.address.line1}, ${ps.address.city}</p>
+            <p>${escapeHTML(ps.address.line1)}, ${escapeHTML(ps.address.city)}</p>
         </div>
     `).join('');
 }
 
 function renderAnalysisResult(analysis, container) {
     if (!analysis || !analysis.entities) return;
-    const entities = analysis.entities.slice(0, 3).map(e => `<span class="tag">${e.name}</span>`).join('');
+    const entities = analysis.entities.slice(0, 3).map(e => `<span class="tag">${escapeHTML(e.name)}</span>`).join('');
     const div = document.createElement('div');
     div.className = 'analysis-box';
     div.innerHTML = `<span class="analysis-label">Topic Analysis:</span> ${entities}`;

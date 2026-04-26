@@ -22,28 +22,35 @@ class MainUI {
     }
 
     initListeners() {
-        // Use both delegation AND direct attachment as a failsafe
-        const cards = document.querySelectorAll('.persona-card');
-        console.log(`MainUI: Found ${cards.length} persona cards.`);
-
-        cards.forEach(card => {
-            card.onclick = (e) => {
-                e.preventDefault();
-                const persona = card.getAttribute('data-persona');
-                this.handlePersonaSelect(persona, card.querySelector('h3')?.textContent);
-            };
-        });
+        console.log("MainUI: Binding delegated listeners...");
+        
+        const cardsContainer = document.querySelector('.cards-container');
+        if (cardsContainer) {
+            cardsContainer.addEventListener('click', (e) => {
+                const card = e.target.closest('.persona-card');
+                if (card) {
+                    e.preventDefault();
+                    const persona = card.getAttribute('data-persona');
+                    const title = card.querySelector('h3')?.textContent;
+                    console.log(`MainUI: Card clicked -> ${persona}`);
+                    this.handlePersonaSelect(persona, title);
+                }
+            });
+        } else {
+            console.warn("MainUI: .cards-container not found!");
+        }
 
         if (this.backToHomeBtn) {
-            this.backToHomeBtn.onclick = () => {
+            this.backToHomeBtn.addEventListener('click', () => {
+                console.log("MainUI: Back to home clicked.");
                 this.handleBackToHome();
-            };
+            });
         }
 
         if (this.findLocationBtn) {
-            this.findLocationBtn.onclick = () => {
+            this.findLocationBtn.addEventListener('click', () => {
                 this.mapsService.findPollingStation();
-            };
+            });
         }
     }
 
